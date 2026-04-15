@@ -24,7 +24,7 @@ export default function PDFToText() {
       for (let i = 1; i <= doc.numPages; i++) {
         const page = await doc.getPage(i);
         const content = await page.getTextContent();
-        const pageText = content.items.map((it: { str?: string }) => it.str ?? "").join(" ").trim();
+        const pageText = content.items.map((it) => ("str" in it ? it.str : "")).join(" ").trim();
         out += `--- ${i}페이지 ---\n${pageText}\n\n`;
       }
       setText(out.trim());
