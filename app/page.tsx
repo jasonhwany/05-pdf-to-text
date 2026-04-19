@@ -1,5 +1,19 @@
 "use client";
 import AdUnit from "@/components/AdUnit"
+
+import Script from "next/script"
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  name: "PDF 텍스트 추출 (PDF to Text)",
+  url: "https://pdf.moneystom7.com",
+  description: "PDF 파일에서 텍스트를 빠르게 추출하는 무료 도구",
+  applicationCategory: "UtilityApplication",
+  operatingSystem: "Any",
+  offers: { "@type": "Offer", price: "0", priceCurrency: "KRW" },
+  inLanguage: ["ko", "en"],
+}
 import { useState, useRef } from "react";
 
 export default function PDFToText() {
