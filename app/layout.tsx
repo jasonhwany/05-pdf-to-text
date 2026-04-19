@@ -10,13 +10,11 @@ export const metadata: Metadata = {
     default: "PDF 텍스트 추출 — MoneyStom7",
     template: "%s | MoneyStom7",
   },
-  description: "PDF 파일에서 텍스트를 빠르게 추출. 무료 온라인 PDF 변환기. Free online PDF to text extractor. Extract text from PDF files instantly in your browser.",
-  keywords: ["PDF 텍스트 추출", "PDF to Text", "무료", "온라인", "계산기", "PDF to text", "extract text from PDF", "PDF converter", "free PDF tool"],
-  authors: [{ name: "MoneyStom7" }],
+  description: "PDF 파일에서 텍스트를 빠르게 추출. Free online PDF to text extractor.",
   alternates: { canonical: "/" },
   openGraph: {
     title: "PDF 텍스트 추출 — MoneyStom7",
-    description: "PDF 파일에서 텍스트를 빠르게 추출. 무료 온라인 PDF 변환기.",
+    description: "PDF 파일에서 텍스트를 빠르게 추출. Free online PDF to text extractor.",
     url: BASE_URL,
     siteName: "MoneyStom7",
     locale: "ko_KR",
@@ -25,7 +23,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "PDF 텍스트 추출 — MoneyStom7",
-    description: "PDF 파일에서 텍스트를 빠르게 추출. 무료 온라인 PDF 변환기.",
+    description: "PDF 파일에서 텍스트를 빠르게 추출. Free online PDF to text extractor.",
   },
   robots: {
     index: true,
@@ -39,6 +37,19 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="ko">
       <body>
         {children}
+        <Script
+          async
+          src="https://www.googletagmanager.com/gtag/js?id=G-GN51TN6PS4"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-GN51TN6PS4');
+          `}
+        </Script>
         <Script
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8414331859152952"
