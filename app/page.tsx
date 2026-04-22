@@ -1,7 +1,5 @@
-"use client";
-import AdUnit from "@/components/AdUnit"
-
-import Script from "next/script"
+import PDFToTextClient from "@/components/PDFToTextClient";
+import Script from "next/script";
 
 const jsonLd = {
   "@context": "https://schema.org",
@@ -13,101 +11,55 @@ const jsonLd = {
   operatingSystem: "Any",
   offers: { "@type": "Offer", price: "0", priceCurrency: "KRW" },
   inLanguage: ["ko", "en"],
-}
-import { useState, useRef } from "react";
+};
 
-export default function PDFToText() {
-  const [text, setText] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [fileName, setFileName] = useState("");
-  const [pages, setPages] = useState(0);
-  const [copied, setCopied] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  const handleFile = async (file: File) => {
-    if (!file || file.type !== "application/pdf") return alert("PDF 파일만 지원됩니다.");
-    setFileName(file.name);
-    setLoading(true);
-    setText("");
-    try {
-      const pdfjs = await import("pdfjs-dist");
-      pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.mjs`;
-      const buf = await file.arrayBuffer();
-      const doc = await pdfjs.getDocument({ data: buf }).promise;
-      setPages(doc.numPages);
-      let out = "";
-      for (let i = 1; i <= doc.numPages; i++) {
-        const page = await doc.getPage(i);
-        const content = await page.getTextContent();
-        const pageText = content.items.map((it) => ("str" in it ? it.str : "")).join(" ").trim();
-        out += `--- ${i}페이지 ---\n${pageText}\n\n`;
-      }
-      setText(out.trim());
-    } catch (e) {
-      alert("추출 실패: " + (e instanceof Error ? e.message : String(e)));
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const copy = () => { navigator.clipboard.writeText(text); setCopied(true); setTimeout(() => setCopied(false), 1500); };
-  const download = () => {
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(new Blob([text], { type: "text/plain;charset=utf-8" }));
-    a.download = fileName.replace(/\.pdf$/i, ".txt");
-    a.click();
-  };
-
+export default function Page() {
   return (
     <div className="min-h-screen bg-gray-950 text-white p-4 font-sans">
-      <div className="max-w-2xl mx-auto pt-10">
-        <div className="text-center mb-8">
-          <div className="text-5xl mb-3">📄</div>
-          <h1 className="text-3xl font-bold tracking-tight">PDF 텍스트 추출</h1>
-          <p className="text-gray-400 mt-1 text-sm">브라우저에서 안전하게 처리 · 서버 업로드 없음</p>
+      <Script id="json-ld" type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+
+      <PDFToTextClient />
+
+      <section className="max-w-2xl mx-auto mt-16 space-y-10 text-sm text-gray-400 pb-16">
+        <div>
+          <h2 className="text-white text-base font-semibold mb-3">PDF 텍스트 추출기란?</h2>
+          <p>
+            PDF 텍스트 추출기(PDF to Text)는 PDF 파일에서 텍스트 내용을 복사·편집 가능한 형태로
+            변환하는 무료 온라인 도구입니다. 계약서, 논문, 보고서 등 PDF 문서의 내용을 텍스트로
+            추출하여 복사하거나 TXT 파일로 저장할 수 있습니다. 모든 처리는 브라우저에서만 이루어지므로
+            민감한 문서도 안전하게 사용할 수 있습니다.
+          </p>
         </div>
 
-        <div
-          className="bg-gray-900 rounded-2xl p-12 text-center border-2 border-dashed border-gray-700 hover:border-emerald-500/60 transition-colors cursor-pointer"
-          onClick={() => inputRef.current?.click()}
-          onDragOver={e => e.preventDefault()}
-          onDrop={e => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (f) handleFile(f); }}>
-          <input ref={inputRef} type="file" accept="application/pdf" className="hidden"
-            onChange={e => { const f = e.target.files?.[0]; if (f) handleFile(f); }} />
-          <div className="text-4xl mb-3">📎</div>
-          <p className="text-gray-300 font-medium">PDF 파일을 드래그하거나 클릭해서 선택</p>
-          <p className="text-gray-600 text-sm mt-1">최대 50MB · 개인정보 안전 (브라우저 내 처리)</p>
+        <div>
+          <h2 className="text-white text-base font-semibold mb-3">주요 특징</h2>
+          <ul className="space-y-2 list-disc list-inside">
+            <li><strong className="text-gray-300">프라이버시 보호</strong> — 파일이 서버에 업로드되지 않습니다. 브라우저 내 처리.</li>
+            <li><strong className="text-gray-300">다중 페이지 지원</strong> — 페이지별로 구분하여 텍스트를 추출합니다.</li>
+            <li><strong className="text-gray-300">드래그 앤 드롭</strong> — 파일을 끌어다 놓으면 즉시 처리됩니다.</li>
+            <li><strong className="text-gray-300">TXT 저장</strong> — 추출된 텍스트를 TXT 파일로 다운로드할 수 있습니다.</li>
+          </ul>
         </div>
 
-        {loading && (
-          <div className="mt-5 bg-gray-900 rounded-2xl p-8 text-center">
-            <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-            <p className="text-gray-400 text-sm">텍스트 추출 중...</p>
-          </div>
-        )}
-
-        {text && !loading && (
-          <div className="mt-5 bg-gray-900 rounded-2xl p-5 space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-400">{fileName} · {pages}페이지 · {text.length.toLocaleString()}자</span>
-              <div className="flex gap-2">
-                <button onClick={copy} className="text-xs bg-gray-700 hover:bg-gray-600 px-3 py-1.5 rounded-lg transition-colors">
-                  {copied ? "✓ 복사됨" : "복사"}
-                </button>
-                <button onClick={download} className="text-xs bg-emerald-600 hover:bg-emerald-500 px-3 py-1.5 rounded-lg transition-colors">
-                  TXT 저장
-                </button>
-              </div>
+        <div>
+          <h2 className="text-white text-base font-semibold mb-3">자주 묻는 질문 (FAQ)</h2>
+          <dl className="space-y-4">
+            <div>
+              <dt className="text-gray-300 font-medium">스캔된 PDF(이미지 PDF)도 텍스트 추출이 되나요?</dt>
+              <dd className="mt-1">스캔된 이미지 PDF는 텍스트가 이미지로 저장되어 있어 직접 추출이 어렵습니다. 텍스트 레이어가 있는 디지털 PDF 파일에서만 작동합니다.</dd>
             </div>
-            <textarea readOnly value={text}
-              className="w-full bg-gray-800 border border-gray-700 rounded-xl p-4 text-sm font-mono h-96 resize-none focus:outline-none leading-relaxed" />
-          </div>
-        )}
-
-        <p className="text-center text-xs text-gray-600 mt-10">
-          <a href="https://moneystom7.com" className="hover:text-gray-400 transition-colors">← MoneyStom7 홈으로</a>
-        </p>
-      </div>
+            <div>
+              <dt className="text-gray-300 font-medium">파일 크기 제한이 있나요?</dt>
+              <dd className="mt-1">최대 50MB의 PDF 파일을 지원합니다. 그 이상의 파일은 브라우저 메모리 한계로 처리가 어려울 수 있습니다.</dd>
+            </div>
+            <div>
+              <dt className="text-gray-300 font-medium">한국어, 일본어 등 다국어 PDF도 지원하나요?</dt>
+              <dd className="mt-1">네. PDF 파일 내에 텍스트 레이어가 있다면 한국어, 영어, 일본어, 중국어 등 대부분의 언어를 추출할 수 있습니다.</dd>
+            </div>
+          </dl>
+        </div>
+      </section>
     </div>
   );
 }
